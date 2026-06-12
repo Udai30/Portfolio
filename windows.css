@@ -1,0 +1,269 @@
+/* ============================================================
+   Window manager — OS-style draggable sandbox windows
+   ============================================================ */
+ 
+/* Launch button on project cards */
+.btn-launch {
+  margin-top: 1.1rem;
+  align-self: flex-start;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--chip-border);
+  background: var(--chip-bg);
+  color: var(--chip-text);
+  cursor: pointer;
+  font-family: inherit;
+}
+ 
+.btn-launch:hover {
+  border-color: var(--accent-1);
+  box-shadow: var(--glow);
+  transform: translateY(-2px);
+}
+ 
+/* ---------- Window ---------- */
+.os-window {
+  position: fixed;
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  min-width: 320px;
+  min-height: 240px;
+  border-radius: 14px;
+  border: 1px solid var(--card-border);
+  background: var(--bg-soft);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55), var(--glow);
+  overflow: hidden;
+  animation: win-open 0.22s ease;
+}
+ 
+[data-theme="light"] .os-window {
+  box-shadow: 0 24px 70px rgba(22, 22, 30, 0.25), var(--glow);
+}
+ 
+.os-window.focused { border-color: var(--chip-border); }
+ 
+.os-window.maximized {
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  border-radius: 0;
+}
+ 
+@keyframes win-open {
+  from { opacity: 0; transform: scale(0.96) translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+ 
+@media (prefers-reduced-motion: reduce) {
+  .os-window { animation: none; }
+}
+ 
+/* ---------- Title bar ---------- */
+.os-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.8rem;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--card-border);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+ 
+.os-titlebar:active { cursor: grabbing; }
+ 
+.os-title {
+  flex: 1;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+ 
+.os-glyph { font-size: 1rem; }
+ 
+.os-controls { display: flex; gap: 0.4rem; }
+ 
+.os-controls button {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid var(--card-border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+ 
+.os-controls button:hover { color: var(--text); border-color: var(--accent-1); }
+.os-controls .os-close:hover { background: #e5484d; border-color: #e5484d; color: #fff; }
+ 
+/* ---------- Body ---------- */
+.os-body {
+  flex: 1;
+  position: relative;
+  background: var(--bg);
+  min-height: 0;
+}
+ 
+.os-body iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  background: var(--bg);
+}
+ 
+/* While dragging/resizing, stop the iframe from eating pointer events */
+.os-window.interacting .os-body iframe { pointer-events: none; }
+ 
+/* ---------- Placeholder (no demo yet) ---------- */
+.os-placeholder {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.8rem;
+  padding: 2rem;
+}
+ 
+.os-placeholder .ph-glyph {
+  font-size: 2.6rem;
+  filter: grayscale(0.3);
+  animation: ph-float 3.5s ease-in-out infinite;
+}
+ 
+@keyframes ph-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+ 
+.os-placeholder h4 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.1rem;
+}
+ 
+.os-placeholder p {
+  max-width: 420px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+ 
+.os-placeholder .ph-badge {
+  margin-top: 0.4rem;
+  padding: 0.35rem 0.95rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--chip-bg);
+  border: 1px solid var(--chip-border);
+  color: var(--chip-text);
+}
+ 
+/* ---------- Resize handle ---------- */
+.os-resize {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 18px;
+  height: 18px;
+  cursor: nwse-resize;
+  touch-action: none;
+}
+ 
+.os-resize::after {
+  content: "";
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--text-muted);
+  border-bottom: 2px solid var(--text-muted);
+  border-radius: 1px;
+  opacity: 0.6;
+}
+ 
+.os-window.maximized .os-resize { display: none; }
+ 
+/* ---------- Taskbar ---------- */
+.taskbar {
+  position: fixed;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  z-index: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  max-width: calc(100vw - 2rem);
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  background: var(--nav-bg);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--shadow);
+}
+ 
+.taskbar-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+ 
+.taskbar-items { display: flex; gap: 0.4rem; overflow-x: auto; }
+ 
+.taskbar-items button {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+ 
+.taskbar-items button:hover { color: var(--text); border-color: var(--accent-1); }
+ 
+.taskbar-items button.active {
+  color: var(--text);
+  border-color: var(--chip-border);
+  box-shadow: var(--glow);
+}
+ 
+.taskbar-items button.minimized { opacity: 0.55; }
+ 
+/* ---------- Small screens: windows go near-fullscreen ---------- */
+@media (max-width: 640px) {
+  .os-window {
+    top: 8px !important;
+    left: 8px !important;
+    width: calc(100vw - 16px) !important;
+    height: calc(100vh - 80px) !important;
+  }
+  .os-resize { display: none; }
+}
